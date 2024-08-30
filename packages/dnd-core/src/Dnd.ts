@@ -21,14 +21,14 @@ class Dnd {
   public draggable<T extends HTMLElement, I extends IDragItem>(
     ele: T,
     options?: {
-      crossWindow?: boolean;
+      native?: boolean;
       item?: I;
     }
   ) {
     const listenable = new DragListenable(
       this,
       ele,
-      options?.crossWindow,
+      options?.native,
       options?.item
     );
 
@@ -38,11 +38,11 @@ class Dnd {
   public droppable<T extends HTMLElement>(
     ele: T,
     options?: {
-      crossWindow?: boolean;
+      native?: boolean;
       allowBubble?: boolean;
     }
   ) {
-    const listenable = new DropListenable(this, ele, options?.crossWindow);
+    const listenable = new DropListenable(this, ele, options?.native);
     return listenable;
   }
 

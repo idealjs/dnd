@@ -9,7 +9,7 @@ import { IDropData, IPoint } from "./type";
 declare interface DropListenable<E extends HTMLElement> {
   addListener<I extends IDragItem>(
     event: DND_EVENT,
-    listener: (ev: MouseEvent, data: IDropData<I>) => void
+    listener: (ev: MouseEvent, data: IDropData<I>) => void,
   ): this;
 }
 
@@ -21,8 +21,8 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
   constructor(
     dnd: Dnd,
     el: E,
-    crossWindow: boolean = false,
-    allowBubble: boolean = false
+    native: boolean = false,
+    allowBubble: boolean = false,
   ) {
     super();
     this.dnd = dnd;
@@ -37,17 +37,14 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
     this.onDragleave = this.onDragleave.bind(this);
     this.onDrop = this.onDrop.bind(this);
 
-    if (
-      crossWindow &&
-      isHTMLElement(el, el.ownerDocument.defaultView || window)
-    ) {
+    if (native && isHTMLElement(el, el.ownerDocument.defaultView || window)) {
       el.addEventListener("dragover", this.onDragover);
       el.addEventListener("dragenter", this.onDragEnter);
       el.addEventListener("dragleave", this.onDragleave);
       el.addEventListener("drop", this.onDrop);
       return;
     }
-    if (!crossWindow) {
+    if (!native) {
       el.addEventListener("mouseup", this.onMouseUp as EventListener);
       el.addEventListener("mousemove", this.onMouseMove as EventListener);
       el.addEventListener("mouseenter", this.onMouseEnter as EventListener);
@@ -112,7 +109,6 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
       };
 
       this.emit(DND_EVENT.DRAG_LEAVE, event, {
-        crossWindow: true,
         clientPosition: this.clientPosition,
         item: this.dnd.getDraggingItem(),
       });
@@ -151,6 +147,7 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
     };
 
     this.emit(DND_EVENT.DRAG_LEAVE, event, {
+      native: true,
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });

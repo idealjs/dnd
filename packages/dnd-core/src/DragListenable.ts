@@ -31,7 +31,7 @@ class DragListenable<
     y: VECTOR;
   } | null = null;
 
-  constructor(dnd: Dnd, el: E, crossWindow: boolean = false, item?: I) {
+  constructor(dnd: Dnd, el: E, native: boolean = false, item?: I) {
     super();
     this.dnd = dnd;
     this.el = el;
@@ -44,13 +44,13 @@ class DragListenable<
     this.onDragEnd = this.onDragEnd.bind(this);
     this.getWindow = this.getWindow.bind(this);
 
-    if (crossWindow && isHTMLElement(this.el, this.getWindow())) {
+    if (native && isHTMLElement(this.el, this.getWindow())) {
       this.el.addEventListener("dragstart", this.onDragStart);
       this.el.draggable = true;
       return;
     }
 
-    if (!crossWindow) {
+    if (!native) {
       this.el.addEventListener("mousedown", this.onMouseDown as EventListener);
 
       return;
