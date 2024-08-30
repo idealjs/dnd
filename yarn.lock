@@ -1866,7 +1866,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@idealjs/dnd-core@npm:^3.0.0-beta.1, @idealjs/dnd-core@workspace:packages/dnd-core":
+"@idealjs/dnd-core@npm:^3.0.0-beta.2, @idealjs/dnd-core@workspace:packages/dnd-core":
   version: 0.0.0-use.local
   resolution: "@idealjs/dnd-core@workspace:packages/dnd-core"
   dependencies:
@@ -1886,7 +1886,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@idealjs/dnd-react@workspace:packages/dnd-react"
   dependencies:
-    "@idealjs/dnd-core": "npm:^3.0.0-beta.1"
+    "@idealjs/dnd-core": "npm:^3.0.0-beta.2"
     "@types/react": "npm:^18.3.5"
     esbuild: "npm:^0.23.1"
     react: "npm:18.0.0"
