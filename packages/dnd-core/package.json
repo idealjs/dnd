@@ -1,20 +1,32 @@
 {
   "name": "@idealjs/dnd-core",
   "version": "3.0.0-beta.1",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    }
+  },
   "license": "MIT",
   "scripts": {
-    "test": "jest",
-    "build": "tsc -p tsconfig.build.json",
-    "build:webpack": "webpack -c webpack.config.js",
-    "prepublishOnly": "rm -rf dist&yarn build:webpack",
-    "postpublish": "rm -rf dist"
+    "build": "rollup -c rollup.config.js",
+    "typings": "tsc -v && tsc -b -v",
+    "prepack": "rimraf dist && yarn typings && yarn build"
   },
   "dependencies": {
     "events": "^3.3.0"
   },
   "devDependencies": {
-    "ts-loader": "^9.4.2"
+    "@types/events": "^3.0.3",
+    "esbuild": "^0.23.1",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.21.2",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.5.4"
   }
 }

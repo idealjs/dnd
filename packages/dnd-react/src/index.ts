@@ -1,2 +1,2 @@
-export * from "./src/useDnd";
+export * from "./useDnd";
 export * from "@idealjs/dnd-core";

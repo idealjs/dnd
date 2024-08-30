@@ -1,56 +1,25 @@
-name: publish
+name: Publish Package
 
 on:
   push:
-    tags:
-      - "*"
+    tags:        
+      - v[0].[0-9]+.[0-9]+*
 
 jobs:
-  test:
+  publish-package:
+    name: Publish Package
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [16]
-    name: Test on Node ${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
-          cache: "yarn"
-      - name: Install deps
-        run: yarn install --frozen-lockfile
-        timeout-minutes: 3
-      - name: Test
-        run: yarn run test --passWithNoTests
-
-  publish:
-    needs: [test]
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [16]
-    name: Publish on Node ${{ matrix.node }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          cache: "yarn"
-      - name: Install deps
-        run: yarn install --frozen-lockfile
-        timeout-minutes: 3
-      - name: Write .npmrc
+          node-version: 18
+          cache: yarn
+      - name: Install Dependencies
+        run: yarn install --immutable
+      - name: Publish Package
+        run: |
+          yarn workspace @idealjs/dnd-core npm publish
+          yarn workspace @idealjs/dnd-react npm publish
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          echo //registry.npmjs.org/:_authToken=$NPM_TOKEN > ~/.npmrc
-      - name: Publish
-        run: |
-          yarn lerna publish from-git --no-verify-access --yes
-      - name: Clean .npmrc
-        if: always()
-        run: rm ~/.npmrc
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

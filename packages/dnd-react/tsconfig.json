@@ -1,9 +1,18 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
-    "outDir": "./dist"
+    "emitDeclarationOnly": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "@idealjs/dnd-core": ["../dnd-core/src/index.ts"]
+    }
   },
-  "include": ["src", "index.ts"],
+  "references": [
+    {
+      "path": "../dnd-core"
+    }
+  ],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
