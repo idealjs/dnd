@@ -1,6 +1,6 @@
 {
   "name": "@idealjs/dnd-react",
-  "version": "3.0.0-beta.6",
+  "version": "3.0.0-beta.7",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,7 @@
     "prepack": "rimraf dist && yarn typings && yarn build"
   },
   "dependencies": {
-    "@idealjs/dnd-core": "^3.0.0-beta.6"
+    "@idealjs/dnd-core": "^3.0.0-beta.7"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",
