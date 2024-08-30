@@ -22,6 +22,7 @@ const config = {
       format: "cjs",
     },
   ],
+  external: ["events"],
 };
 
 export default config;

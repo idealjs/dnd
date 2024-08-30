@@ -1,9 +1,9 @@
 import { EventEmitter } from "events";
 
-import Dnd, { DND_EVENT } from "./Dnd";
+import Dnd from "./Dnd";
 import isHTMLElement from "./isHTMLElement";
 import offsetFromEvent from "./offsetFromEvent";
-import { IDragItem } from "./type";
+import { DND_EVENT, IDragItem } from "./type";
 import { IDragData, IPoint, VECTOR } from "./type";
 import vectorFromEvent from "./vectorFromEvent";
 
@@ -14,7 +14,7 @@ declare interface DragListenable<E extends HTMLElement, I extends IDragItem> {
 
 class DragListenable<
   E extends HTMLElement = HTMLElement,
-  I extends IDragItem = IDragItem
+  I extends IDragItem = IDragItem,
 > extends EventEmitter {
   private dnd: Dnd;
   private dragStartEmitted = false;

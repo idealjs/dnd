@@ -1,8 +1,8 @@
 import { EventEmitter } from "events";
 
-import Dnd, { DND_EVENT } from "./Dnd";
+import Dnd from "./Dnd";
 import isHTMLElement from "./isHTMLElement";
-import { IDragItem } from "./type";
+import { DND_EVENT, IDragItem } from "./type";
 import { IDropData, IPoint } from "./type";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

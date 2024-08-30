@@ -2,16 +2,6 @@ import DragListenable from "./DragListenable";
 import DropListenable from "./DropListenable";
 import { IDragItem } from "./type";
 
-export enum DND_EVENT {
-  DRAG = "DND_EVENT/DRAG",
-  DRAG_END = "DND_EVENT/DRAG_END",
-  DRAG_ENTER = "DND_EVENT/DRAG_ENTER",
-  DRAG_LEAVE = "DND_EVENT/DRAG_LEAVE",
-  DRAG_OVER = "DND_EVENT/DRAG_OVER",
-  DRAG_START = "DND_EVENT/DRAG_START",
-  DROP = "DND_EVENT/DROP",
-}
-
 class Dnd {
   private dragging = false;
   private _dropped = false;
@@ -23,13 +13,13 @@ class Dnd {
     options?: {
       native?: boolean;
       item?: I;
-    }
+    },
   ) {
     const listenable = new DragListenable(
       this,
       ele,
       options?.native,
-      options?.item
+      options?.item,
     );
 
     return listenable;
@@ -40,7 +30,7 @@ class Dnd {
     options?: {
       native?: boolean;
       allowBubble?: boolean;
-    }
+    },
   ) {
     const listenable = new DropListenable(this, ele, options?.native);
     return listenable;
