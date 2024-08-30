@@ -6,14 +6,14 @@ import { IDragItem } from "./type";
 import { IDropData, IPoint } from "./type";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare interface DropListenable<E extends Element> {
+declare interface DropListenable<E extends HTMLElement> {
   addListener<I extends IDragItem>(
-    event: string | symbol,
-    listener: (data: IDropData<I>) => void
+    event: DND_EVENT,
+    listener: (ev: MouseEvent, data: IDropData<I>) => void
   ): this;
 }
 
-class DropListenable<E extends Element = Element> extends EventEmitter {
+class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
   private dnd: Dnd;
   private clientPosition: IPoint | null = null;
   private el: E;
@@ -37,21 +37,25 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
     this.onDragleave = this.onDragleave.bind(this);
     this.onDrop = this.onDrop.bind(this);
 
-    if (crossWindow) {
-      if (isHTMLElement(el, el.ownerDocument.defaultView || window)) {
-        el.addEventListener("dragover", this.onDragover);
-        el.addEventListener("dragenter", this.onDragEnter);
-        el.addEventListener("dragleave", this.onDragleave);
-        el.addEventListener("drop", this.onDrop);
-      } else {
-        throw new Error(`Can't add drop listener to ${el}`);
-      }
-    } else {
+    if (
+      crossWindow &&
+      isHTMLElement(el, el.ownerDocument.defaultView || window)
+    ) {
+      el.addEventListener("dragover", this.onDragover);
+      el.addEventListener("dragenter", this.onDragEnter);
+      el.addEventListener("dragleave", this.onDragleave);
+      el.addEventListener("drop", this.onDrop);
+      return;
+    }
+    if (!crossWindow) {
       el.addEventListener("mouseup", this.onMouseUp as EventListener);
       el.addEventListener("mousemove", this.onMouseMove as EventListener);
       el.addEventListener("mouseenter", this.onMouseEnter as EventListener);
       el.addEventListener("mouseleave", this.onMouseLeave as EventListener);
+      return;
     }
+
+    console.error(`Can't add drop listener to ${el}`);
   }
 
   private onMouseUp(event: MouseEvent) {
@@ -63,7 +67,7 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
         x: event.clientX,
         y: event.clientY,
       };
-      this.emit(DND_EVENT.DROP, {
+      this.emit(DND_EVENT.DROP, event, {
         clientPosition: this.clientPosition,
         item: this.dnd.getDraggingItem(),
       });
@@ -77,7 +81,7 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
         x: event.clientX,
         y: event.clientY,
       };
-      this.emit(DND_EVENT.DRAG_OVER, {
+      this.emit(DND_EVENT.DRAG_OVER, event, {
         clientPosition: this.clientPosition,
         item: this.dnd.getDraggingItem(),
       });
@@ -92,7 +96,7 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
         y: event.clientY,
       };
 
-      this.emit(DND_EVENT.DRAG_ENTER, {
+      this.emit(DND_EVENT.DRAG_ENTER, event, {
         clientPosition: this.clientPosition,
         item: this.dnd.getDraggingItem(),
       });
@@ -107,7 +111,7 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
         y: event.clientY,
       };
 
-      this.emit(DND_EVENT.DRAG_LEAVE, {
+      this.emit(DND_EVENT.DRAG_LEAVE, event, {
         crossWindow: true,
         clientPosition: this.clientPosition,
         item: this.dnd.getDraggingItem(),
@@ -122,7 +126,7 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
       y: event.clientY,
     };
 
-    this.emit(DND_EVENT.DRAG_OVER, {
+    this.emit(DND_EVENT.DRAG_OVER, event, {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
@@ -134,7 +138,7 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
       y: event.clientY,
     };
 
-    this.emit(DND_EVENT.DRAG_ENTER, {
+    this.emit(DND_EVENT.DRAG_ENTER, event, {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
@@ -146,21 +150,20 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
       y: event.clientY,
     };
 
-    this.emit(DND_EVENT.DRAG_LEAVE, {
+    this.emit(DND_EVENT.DRAG_LEAVE, event, {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
   }
 
   private onDrop(event: DragEvent) {
-    console.debug("[Debug] dnd onDrop", this.dnd.getDraggingItem());
     this.dnd.setDropped();
     this.clientPosition = {
       x: event.clientX,
       y: event.clientY,
     };
 
-    this.emit(DND_EVENT.DROP, {
+    this.emit(DND_EVENT.DROP, event, {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
@@ -169,36 +172,15 @@ class DropListenable<E extends Element = Element> extends EventEmitter {
   }
 
   public removeEleListeners() {
-    (this.el as any as HTMLElement).removeEventListener(
-      "dragover",
-      this.onDragover
-    );
-    (this.el as any as HTMLElement).removeEventListener(
-      "dragenter",
-      this.onDragEnter
-    );
-    (this.el as any as HTMLElement).removeEventListener(
-      "dragleave",
-      this.onDragleave
-    );
-    (this.el as any as HTMLElement).removeEventListener("drop", this.onDrop);
+    this.el.removeEventListener("dragover", this.onDragover);
+    this.el.removeEventListener("dragenter", this.onDragEnter);
+    this.el.removeEventListener("dragleave", this.onDragleave);
+    this.el.removeEventListener("drop", this.onDrop);
 
-    (this.el as any as HTMLElement).removeEventListener(
-      "mouseup",
-      this.onMouseUp as EventListener
-    );
-    (this.el as any as HTMLElement).removeEventListener(
-      "mousemove",
-      this.onMouseMove as EventListener
-    );
-    (this.el as any as HTMLElement).removeEventListener(
-      "mouseenter",
-      this.onMouseEnter as EventListener
-    );
-    (this.el as any as HTMLElement).removeEventListener(
-      "mouseleave",
-      this.onMouseLeave as EventListener
-    );
+    this.el.removeEventListener("mouseup", this.onMouseUp);
+    this.el.removeEventListener("mousemove", this.onMouseMove);
+    this.el.removeEventListener("mouseenter", this.onMouseEnter);
+    this.el.removeEventListener("mouseleave", this.onMouseLeave);
     return this;
   }
 }

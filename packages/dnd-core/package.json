@@ -12,8 +12,7 @@
     "postpublish": "rm -rf dist"
   },
   "dependencies": {
-    "events": "^3.3.0",
-    "html2canvas": "^1.4.1"
+    "events": "^3.3.0"
   },
   "devDependencies": {
     "ts-loader": "^9.4.2"

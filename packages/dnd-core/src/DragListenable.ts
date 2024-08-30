@@ -1,5 +1,4 @@
 import { EventEmitter } from "events";
-import html2canvas from "html2canvas";
 
 import Dnd, { DND_EVENT } from "./Dnd";
 import isHTMLElement from "./isHTMLElement";
@@ -9,22 +8,17 @@ import { IDragData, IPoint, VECTOR } from "./type";
 import vectorFromEvent from "./vectorFromEvent";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare interface DragListenable<E extends Element, I extends IDragItem> {
-  addListener(
-    event: string | symbol,
-    listener: (data: IDragData) => void
-  ): this;
+declare interface DragListenable<E extends HTMLElement, I extends IDragItem> {
+  addListener(event: DND_EVENT, listener: (data: IDragData) => void): this;
 }
 
 class DragListenable<
-  E extends Element = Element,
+  E extends HTMLElement = HTMLElement,
   I extends IDragItem = IDragItem
 > extends EventEmitter {
   private dnd: Dnd;
   private dragStartEmitted = false;
   private el: E;
-  private previewEle: HTMLElement | null = null;
-  private previewCanvas: HTMLCanvasElement | null = null;
   private item: I | null = null;
   private source: IPoint | null = null;
   private prevPoint: IPoint | null = null;
@@ -50,20 +44,19 @@ class DragListenable<
     this.onDragEnd = this.onDragEnd.bind(this);
     this.getWindow = this.getWindow.bind(this);
 
-    if (crossWindow) {
-      if (isHTMLElement(this.el, this.getWindow())) {
-        this.el.addEventListener("dragstart", this.onDragStart);
-        this.el.draggable = true;
-      } else {
-        throw new Error(`Can't add drag to ${this.el}`);
-      }
-    } else {
-      this.el.addEventListener("mousedown", this.onMouseDown as EventListener);
+    if (crossWindow && isHTMLElement(this.el, this.getWindow())) {
+      this.el.addEventListener("dragstart", this.onDragStart);
+      this.el.draggable = true;
+      return;
     }
 
-    if (el instanceof HTMLElement) {
-      el.style.userSelect = "none";
+    if (!crossWindow) {
+      this.el.addEventListener("mousedown", this.onMouseDown as EventListener);
+
+      return;
     }
+
+    console.error(`Can't add drag to ${this.el}`);
   }
 
   private getWindow() {
@@ -94,8 +87,7 @@ class DragListenable<
   }
 
   private onMouseUp(event: MouseEvent) {
-    console.debug("[Debug] drag onMouseUp");
-    this.emit(DND_EVENT.DRAG_END, {
+    this.emit(DND_EVENT.DRAG_END, event, {
       source: this.source,
       offset: this.offset,
       vector: this.vector,
@@ -114,7 +106,7 @@ class DragListenable<
       return;
     }
     if (this.dragStartEmitted === false) {
-      this.emit(DND_EVENT.DRAG_START, {
+      this.emit(DND_EVENT.DRAG_START, event, {
         source: this.source,
         offset: this.offset,
         vector: this.vector,
@@ -125,26 +117,15 @@ class DragListenable<
       });
       this.dnd.setDragging(true);
       this.dragStartEmitted = true;
-      if (this.previewEle != null) {
-        html2canvas(this.previewEle).then((canvas) => {
-          canvas.style.position = "absolute";
-          canvas.style.pointerEvents = "none";
-          this.previewCanvas = canvas;
-          this.dnd.setPreviewCanvas(canvas);
-        });
-      }
     }
-    if (this.previewCanvas != null) {
-      this.previewCanvas.style.top = `${event.screenY}px`;
-      this.previewCanvas.style.left = `${event.screenX}px`;
-    }
+
     this.vector = vectorFromEvent(event, this.prevPoint);
     this.prevPoint = {
       x: event.screenX,
       y: event.screenY,
     };
     this.offset = offsetFromEvent(event, this.source);
-    this.emit(DND_EVENT.DRAG, {
+    this.emit(DND_EVENT.DRAG, event, {
       source: this.source,
       offset: this.offset,
       vector: this.vector,
@@ -175,24 +156,7 @@ class DragListenable<
       x: 0,
       y: 0,
     };
-    if (this.previewEle) {
-      try {
-        event.dataTransfer?.setDragImage(
-          this.previewEle,
-          event.offsetX,
-          event.offsetY
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      event.dataTransfer?.setDragImage(
-        document.createElement("div"),
-        event.offsetX,
-        event.offsetY
-      );
-    }
-    this.emit(DND_EVENT.DRAG_START, {
+    this.emit(DND_EVENT.DRAG_START, event, {
       source: this.source,
       offset: this.offset,
       vector: this.vector,
@@ -206,7 +170,7 @@ class DragListenable<
       this.el.addEventListener("drag", this.onDrag);
       this.el.addEventListener("dragend", this.onDragEnd);
     } else {
-      throw new Error(`Can't add drag to ${this.el}`);
+      console.error(`Can't add drag to ${this.el}`);
     }
   }
 
@@ -220,7 +184,7 @@ class DragListenable<
     if (event.screenX === 0 && event.screenY === 0) {
       return;
     }
-    this.emit(DND_EVENT.DRAG, {
+    this.emit(DND_EVENT.DRAG, event, {
       source: this.source,
       offset: this.offset,
       vector: this.vector,
@@ -232,7 +196,6 @@ class DragListenable<
   }
 
   private onDragEnd(event: DragEvent) {
-    console.debug("[Debug] drag onDragEnd", event, this.dnd.getDraggingItem());
     this.vector = vectorFromEvent(event, this.prevPoint);
     this.offset = offsetFromEvent(event, this.source);
 
@@ -242,7 +205,7 @@ class DragListenable<
         event.clientY < 0 ||
         event.clientX > document.body.clientWidth ||
         event.clientY > document.body.clientHeight);
-    this.emit(DND_EVENT.DRAG_END, {
+    this.emit(DND_EVENT.DRAG_END, event, {
       source: this.source,
       offset: this.offset,
       vector: this.vector,
@@ -257,19 +220,13 @@ class DragListenable<
       this.el.removeEventListener("drag", this.onDrag);
       this.el.removeEventListener("dragend", this.onDragEnd);
     } else {
-      throw new Error(`Can't add drag to ${this.el}`);
+      console.error(`Can't add drag to ${this.el}`);
     }
     this.dnd.resetDropped();
   }
 
-  public setPreviewEle(el: HTMLElement) {
-    this.previewEle = el;
-  }
-
   private clean() {
-    console.debug("[Debug] dnd clean");
     this.dnd.setDragging(false);
-    this.dnd.setPreviewCanvas(null);
     this.dragStartEmitted = false;
     this.dnd.cleanDrags();
     this.dnd.cleanDrops();

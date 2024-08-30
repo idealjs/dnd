@@ -1,5 +1,3 @@
-import { EventEmitter } from "events";
-
 import DragListenable from "./DragListenable";
 import DropListenable from "./DropListenable";
 import { IDragItem } from "./type";
@@ -14,29 +12,13 @@ export enum DND_EVENT {
   DROP = "DND_EVENT/DROP",
 }
 
-class Dnd extends EventEmitter {
-  constructor() {
-    super();
-    this.setDragging = this.setDragging.bind(this);
-  }
-
+class Dnd {
   private dragging = false;
   private _dropped = false;
-  private previewCanvas: HTMLCanvasElement | null = null;
   private activeDrags: DragListenable[] = [];
   private activeDrops: DropListenable[] = [];
 
-  public setPreviewCanvas(ele: HTMLCanvasElement | null) {
-    if (ele == null) {
-      this.previewCanvas?.remove();
-      this.previewCanvas = null;
-    } else {
-      document.getElementById("root")?.appendChild(ele);
-      this.previewCanvas = ele;
-    }
-  }
-
-  public draggable<T extends Element, I extends IDragItem>(
+  public draggable<T extends HTMLElement, I extends IDragItem>(
     ele: T,
     options?: {
       crossWindow?: boolean;
@@ -53,7 +35,7 @@ class Dnd extends EventEmitter {
     return listenable;
   }
 
-  public droppable<T extends Element>(
+  public droppable<T extends HTMLElement>(
     ele: T,
     options?: {
       crossWindow?: boolean;
@@ -76,9 +58,9 @@ class Dnd extends EventEmitter {
     return this._dropped;
   }
 
-  public setDragging(dragging: boolean) {
+  public setDragging = (dragging: boolean) => {
     this.dragging = dragging;
-  }
+  };
 
   public getDraggingItem() {
     return this.activeDrags[0]?.getDraggingItem();
