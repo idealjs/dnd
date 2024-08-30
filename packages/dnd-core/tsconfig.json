@@ -3,7 +3,8 @@
   "compilerOptions": {
     "emitDeclarationOnly": true,
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
   "include": ["src"],
   "exclude": ["node_modules"]
