@@ -64,7 +64,6 @@ class DragListenable<
   }
 
   private onMouseDown(event: MouseEvent) {
-    this.clean();
     this.dnd.activeDrag(this);
     this.source = {
       x: event.screenX,
@@ -99,6 +98,7 @@ class DragListenable<
 
     this.getWindow().removeEventListener("mousemove", this.onMouseMove);
     this.getWindow().removeEventListener("mouseup", this.onMouseUp);
+    this.clean();
   }
 
   private onMouseMove(event: MouseEvent) {
@@ -137,7 +137,6 @@ class DragListenable<
   }
 
   private onDragStart(event: DragEvent) {
-    this.clean();
     this.dnd.activeDrag(this);
 
     this.source = {
@@ -223,6 +222,7 @@ class DragListenable<
       console.error(`Can't add drag to ${this.el}`);
     }
     this.dnd.resetDropped();
+    this.clean();
   }
 
   private clean() {
