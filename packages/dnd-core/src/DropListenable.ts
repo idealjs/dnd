@@ -28,14 +28,6 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
     this.dnd = dnd;
     this.el = el;
     this.allowBubble = allowBubble;
-    this.onMouseUp = this.onMouseUp.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseEnter = this.onMouseEnter.bind(this);
-    this.onMouseLeave = this.onMouseLeave.bind(this);
-    this.onDragover = this.onDragover.bind(this);
-    this.onDragEnter = this.onDragEnter.bind(this);
-    this.onDragleave = this.onDragleave.bind(this);
-    this.onDrop = this.onDrop.bind(this);
 
     if (native && isHTMLElement(el, el.ownerDocument.defaultView || window)) {
       el.addEventListener("dragover", this.onDragover);
@@ -55,7 +47,7 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
     console.error(`Can't add drop listener to ${el}`);
   }
 
-  private onMouseUp(event: MouseEvent) {
+  private onMouseUp = (event: MouseEvent) => {
     if (this.dnd.isDragging() && this.dnd.canDrop(this)) {
       if (!this.allowBubble) {
         this.dnd.cleanDrops();
@@ -70,9 +62,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
       });
       this.clientPosition = null;
     }
-  }
+  };
 
-  private onMouseMove(event: MouseEvent) {
+  private onMouseMove = (event: MouseEvent) => {
     if (this.dnd.isDragging()) {
       this.clientPosition = {
         x: event.clientX,
@@ -83,9 +75,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
         item: this.dnd.getDraggingItem(),
       });
     }
-  }
+  };
 
-  private onMouseEnter(event: MouseEvent) {
+  private onMouseEnter = (event: MouseEvent) => {
     if (this.dnd.isDragging()) {
       this.dnd.activeDrop(this);
       this.clientPosition = {
@@ -98,9 +90,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
         item: this.dnd.getDraggingItem(),
       });
     }
-  }
+  };
 
-  private onMouseLeave(event: MouseEvent) {
+  private onMouseLeave = (event: MouseEvent) => {
     if (this.dnd.isDragging()) {
       this.dnd.deactiveDrop(this);
       this.clientPosition = {
@@ -113,9 +105,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
         item: this.dnd.getDraggingItem(),
       });
     }
-  }
+  };
 
-  private onDragover(event: DragEvent) {
+  private onDragover = (event: DragEvent) => {
     event.preventDefault();
     this.clientPosition = {
       x: event.clientX,
@@ -126,9 +118,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
-  }
+  };
 
-  private onDragEnter(event: DragEvent) {
+  private onDragEnter = (event: DragEvent) => {
     this.clientPosition = {
       x: event.clientX,
       y: event.clientY,
@@ -138,9 +130,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
-  }
+  };
 
-  private onDragleave(event: DragEvent) {
+  private onDragleave = (event: DragEvent) => {
     this.clientPosition = {
       x: event.clientX,
       y: event.clientY,
@@ -151,9 +143,9 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
       clientPosition: this.clientPosition,
       item: this.dnd.getDraggingItem(),
     });
-  }
+  };
 
-  private onDrop(event: DragEvent) {
+  private onDrop = (event: DragEvent) => {
     this.dnd.setDropped();
     this.clientPosition = {
       x: event.clientX,
@@ -166,7 +158,7 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
     });
 
     this.clientPosition = null;
-  }
+  };
 
   public removeEleListeners() {
     this.el.removeEventListener("dragover", this.onDragover);
