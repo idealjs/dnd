@@ -180,6 +180,11 @@ class DropListenable<E extends HTMLElement = HTMLElement> extends EventEmitter {
     this.el.removeEventListener("mouseleave", this.onMouseLeave);
     return this;
   }
+
+  public dispose = () => {
+    this.removeEleListeners();
+    this.removeAllListeners();
+  };
 }
 
 export default DropListenable;

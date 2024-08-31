@@ -235,7 +235,7 @@ class DragListenable<
     this.vector = null;
   }
 
-  public removeEleListeners() {
+  private removeEleListeners() {
     if (isHTMLElement(this.el, this.el.ownerDocument.defaultView || window)) {
       this.el.removeEventListener("dragstart", this.onDragStart);
       this.el.removeEventListener("mousedown", this.onMouseDown);
@@ -243,6 +243,11 @@ class DragListenable<
 
     return this;
   }
+
+  public dispose = () => {
+    this.removeEleListeners();
+    this.removeAllListeners();
+  };
 
   public getDraggingItem() {
     return this.item;
